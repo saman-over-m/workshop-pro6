@@ -1,0 +1,41 @@
+/* Glass theme for FactorPlus when used inside Workshop Pro (app chrome only; the invoice paper is untouched) */
+:root{--wa:#ff7a18;--wb:#ff3d71;--w1:#ff7a18;--w2:#7c5cff;--w3:#18c6ff}
+body{background:#0a0f1f;transition:background .4s}
+body.light{background:#edf0fb}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(42vw 42vw at 92% -6%,var(--w1),transparent 62%),radial-gradient(40vw 40vw at -4% 108%,var(--w2),transparent 62%),radial-gradient(30vw 30vw at 42% 46%,var(--w3),transparent 62%);
+ opacity:.5;animation:wpfl 22s ease-in-out infinite alternate;transition:opacity .4s}
+body.light::before{opacity:.3}
+@keyframes wpfl{to{transform:translate(-3vw,3vw) scale(1.12)}}
+.sidebar,.card,header,.modal-card,.preview-panel,.stat{background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.15)!important;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4)}
+.light .sidebar,.light .card,.light header,.light .modal-card,.light .preview-panel,.light .stat{background:rgba(255,255,255,.66)!important;border-color:#fff!important}
+.search,label input,label textarea,label select,.soft,.iconbtn,.profile{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.16)!important;transition:.22s}
+.light .search,.light label input,.light label textarea,.light label select,.light .soft,.light .iconbtn,.light .profile{background:rgba(255,255,255,.85)!important;border-color:#d7e0ec!important}
+label input:focus,label textarea:focus,label select:focus{outline:0;border-color:var(--wa)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--wa) 24%,transparent)}
+.primary{background:linear-gradient(135deg,var(--wa),var(--wb))!important;box-shadow:0 8px 24px color-mix(in srgb,var(--wb) 40%,transparent)!important;transition:.22s}
+.primary:hover,.soft:hover,.iconbtn:hover{transform:translateY(-2px)}.primary:active,.soft:active{transform:scale(.96)}
+.nav{transition:.25s}.nav:hover{transform:translateX(-3px);background:rgba(255,255,255,.08)}
+.nav.active{background:linear-gradient(135deg,var(--wa),var(--wb))!important;color:#fff!important;box-shadow:0 8px 22px color-mix(in srgb,var(--wb) 35%,transparent)}
+.logo{background:linear-gradient(135deg,var(--wa),var(--wb))!important}
+.card,.stat{transition:transform .3s,box-shadow .3s}.stat:hover{transform:translateY(-4px)}
+.page-section:not(.hidden){animation:wpup .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes wpup{from{opacity:0;transform:translateY(16px);filter:blur(4px)}}
+.modal-card{animation:wppop .35s cubic-bezier(.2,.9,.3,1.2)}@keyframes wppop{from{opacity:0;transform:scale(.9) translateY(18px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- full re-skin of remaining hard-coded blue chrome ---- */
+html{color-scheme:dark}html:has(body.light){color-scheme:light}
+.mini-actions button,.soft,.move,.iconbtn{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.18)!important;color:#dfe6f5!important}
+.mini-actions button:hover,.soft:hover,.move:hover,.iconbtn:hover{border-color:var(--wa)!important;background:color-mix(in srgb,var(--wa) 18%,transparent)!important}
+.drag-handle{background:color-mix(in srgb,var(--wa) 12%,transparent)!important;border-color:color-mix(in srgb,var(--wa) 55%,transparent)!important;color:var(--wa)!important}
+.add-big{border-color:color-mix(in srgb,var(--wa) 60%,transparent)!important;color:var(--wa)!important;transition:.25s}.add-big:hover{background:color-mix(in srgb,var(--wa) 14%,transparent)!important;transform:translateY(-2px)}
+.total-mode:checked{background:var(--wa)!important;border-color:var(--wa)!important}
+.modal-card,.template-card{background:color-mix(in srgb,#0a0f1f 90%,var(--wa) 10%)!important;border-color:rgba(255,255,255,.18)!important}
+.light .modal-card,.light .template-card{background:#fff!important}
+.light .mini-actions button,.light .soft,.light .move,.light .iconbtn{background:rgba(255,255,255,.9)!important;color:#243049!important;border-color:#d3dcea!important}
+.light .drag-handle{background:color-mix(in srgb,var(--wa) 10%,#fff)!important}
+.swatches button{border-color:rgba(255,255,255,.35)}
+.status-pill{background:color-mix(in srgb,var(--wa) 18%,transparent);color:var(--wa)}
+.nav:hover{background:color-mix(in srgb,var(--wa) 14%,transparent)!important}
+::selection{background:color-mix(in srgb,var(--wa) 40%,transparent)}
+*{scrollbar-color:color-mix(in srgb,var(--wa) 60%,#334) transparent;scrollbar-width:thin}
