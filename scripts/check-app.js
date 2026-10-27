@@ -110,7 +110,7 @@ const accountContext = {
     ],
   },
 };
-vm.runInNewContext(accountSource + '\\nthis.testAccountBalance = accountBalance;', accountContext);
+vm.runInNewContext(accountSource + '\nthis.testAccountBalance = accountBalance;', accountContext);
 assert.equal(accountContext.testAccountBalance('bank-1'), 3700, 'account balance combines receipts, supplier payments, and manual ledger entries');
 assert.equal(accountContext.testAccountBalance('cash-1'), 0, 'unrelated accounts have zero balance');
 console.log('PASS account balance aggregates linked receipts, supplier payments, and manual movements');
