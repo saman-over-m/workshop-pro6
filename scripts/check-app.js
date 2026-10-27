@@ -50,7 +50,7 @@ const mechanicEnd = html.indexOf('const stOf=', mechanicStart);
 assert.ok(mechanicStart >= 0 && mechanicEnd > mechanicStart, 'locate technician commission logic');
 const mechanicSource = html.slice(mechanicStart, mechanicEnd);
 const mechanicContext = {
-  S: { cards: [{ id: 'test-card', jobs: card.jobs.map((j, i) => ({ ...j, mechanicId: 'tech', date: '2026-01-01', name: 'job-' + i })) }] },
+  S: { cards: [{ id: 'test-card', discount: 2000, autoDiscount: 0, jobs: card.jobs.map((j, i) => ({ ...j, mechanicId: 'tech', date: '2026-01-01', name: 'job-' + i })) }] },
 };
 vm.runInNewContext(mechanicSource + '\nthis.testNetLabor = netLabor; this.testMechShare = mechShare;', mechanicContext);
 const tech = { id: 'tech', name: 'Test technician', percent: 20 };
