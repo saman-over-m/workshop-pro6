@@ -26,6 +26,8 @@ const checks = [
   ['tip settlement requires a payout account when accounts exist', html.includes("A.tipSetDo=id=>") && html.includes("t.settlementAccountId=accountId||''")],
   ['account transfers are recorded as paired movements', html.includes('A.transferSave=()=>') && html.includes('transferId,accountId:from,direction:\'out\'') && html.includes('transferId,accountId:to,direction:\'in\'')],
   ['reports show supplier and technician payables', html.includes('بدهی به تأمین‌کنندگان') && html.includes('مانده اجرت تعمیرکاران')],
+  ['reports include per-card profit', html.includes('سود تقریبی هر کارتکس') && html.includes('const workProfit=c=>')],
+  ['own jobs do not create technician commission', /z\.j\.own\?0:netLabor\(z\.c,z\.j\)/.test(html)],
 ];
 for (const [label, ok] of checks) {
   assert.ok(ok, label);
@@ -76,7 +78,7 @@ const mechanicEnd = html.indexOf('const stOf=', mechanicStart);
 assert.ok(mechanicStart >= 0 && mechanicEnd > mechanicStart, 'locate technician commission logic');
 const mechanicSource = html.slice(mechanicStart, mechanicEnd);
 const mechanicContext = {
-  S: { cards: [{ id: 'test-card', discount: 2000, autoDiscount: 0, jobs: card.jobs.map((j, i) => ({ ...j, mechanicId: 'tech', date: '2026-01-01', name: 'job-' + i })) }] },
+  S: { cards: [{ id: 'test-card', discount: 2000, autoDiscount: 0, jobs: card.jobs.map((j, i) => ({ ...j, mechanicId: 'tech', date: '2026-01-01', name: 'job-' + i })) }, { id: 'own-card', discount: 0, autoDiscount: 0, jobs: [{ id: 'own-job', name: 'own job', labor: 500, mechanicId: 'tech', own: true }] }] },
 };
 vm.runInNewContext(mechanicSource + '\nthis.testNetLabor = netLabor; this.testMechShare = mechShare;', mechanicContext);
 const tech = { id: 'tech', name: 'Test technician', percent: 20 };
