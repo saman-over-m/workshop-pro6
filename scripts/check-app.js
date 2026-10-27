@@ -60,4 +60,22 @@ assert.ok(Math.abs(netLaborLines[1] - 3200) < 1e-9, 'second job receives proport
 assert.ok(Math.abs(mechanicContext.testMechShare(tech) - 1600) < 1e-9, 'commission is based on net labor');
 console.log('PASS proportional labor discount and technician commission calculation');
 
+const syncStart = html.indexOf('function syncCustomer(c,previous={})');
+const syncEnd = html.indexOf('const cardLbl=', syncStart);
+assert.ok(syncStart >= 0 && syncEnd > syncStart, 'locate linked customer synchronization');
+const syncSource = html.slice(syncStart, syncEnd);
+const customerContext = {
+  S: { customers: [{ id: 'customer-1', name: 'Old Name', phone: '555', national: '' }] },
+  uid: () => 'new-customer',
+};
+vm.runInNewContext(syncSource + '\\nthis.testSyncCustomer = syncCustomer;', customerContext);
+const editedCard = { id: 'card-1', customerId: '', name: 'New Name', phone: '777', national: 'N-1' };
+const linked = customerContext.testSyncCustomer(editedCard, { name: 'Old Name', phone: '555' });
+assert.equal(customerContext.S.customers.length, 1, 'editing a linked cardex does not create a duplicate customer');
+assert.equal(linked.id, 'customer-1', 'existing customer identity is preserved');
+assert.equal(linked.name, 'New Name', 'customer name is synchronized');
+assert.equal(linked.phone, '777', 'customer phone is synchronized');
+assert.equal(editedCard.customerId, 'customer-1', 'cardex stores the stable customer link');
+console.log('PASS cardex edits update the linked customer without duplication');
+
 console.log('All WorkshopPro source and accounting checks passed.');
