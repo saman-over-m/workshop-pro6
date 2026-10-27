@@ -14,7 +14,7 @@ for (let i = 0; i < scripts.length; i++) {
 
 const checks = [
   ['labor discount is allocated proportionally', /const netLabor=\(c,j\)=>/.test(html)],
-  ['mechanic commission uses net labor', /const mechShare=m=>mechJobs\(m\).reduce\(\(a,z\)=>a\+netLabor\(z\.c,z\.j\)\*\(\+m\.percent\|\|0\)\/100,0\)/.test(html)],
+  ['mechanic commission uses net labor and excludes own jobs', html.includes('const mechShare=m=>mechJobs(m).reduce((a,z)=>a+(z.j.own?0:netLabor(z.c,z.j)*(+m.percent||0)/100),0);')],
   ['manual discount edit preserves settlement discount', /A\.setDisc=\(id,v\)=>cm\(id,c=>c\.discount=parseIn\(v\)\+Math\.max\(0,\+c\.autoDiscount\|\|0\)\)/.test(html)],
   ['technician report labels post-discount labor', html.includes('اجرت پس از تخفیف')],
   ['financial accounts are included in data normalization', /'accounts','ledger'/.test(html)],
