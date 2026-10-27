@@ -68,7 +68,7 @@ const customerContext = {
   S: { customers: [{ id: 'customer-1', name: 'Old Name', phone: '555', national: '' }] },
   uid: () => 'new-customer',
 };
-vm.runInNewContext(syncSource + '\\nthis.testSyncCustomer = syncCustomer;', customerContext);
+vm.runInNewContext(syncSource + '\nthis.testSyncCustomer = syncCustomer;', customerContext);
 const editedCard = { id: 'card-1', customerId: '', name: 'New Name', phone: '777', national: 'N-1' };
 const linked = customerContext.testSyncCustomer(editedCard, { name: 'Old Name', phone: '555' });
 assert.equal(customerContext.S.customers.length, 1, 'editing a linked cardex does not create a duplicate customer');
