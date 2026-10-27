@@ -13,6 +13,7 @@ for (let i = 0; i < scripts.length; i++) {
 }
 
 const checks = [
+  ['vehicle card captures and edits purchase cost and supplier', html.includes("fld('pbuy','قیمت خرید واحد ('+L+') (اختیاری)','0')") && html.includes("purchasePrice:parseIn(val('pbuy'))") && html.includes("r.purchasePrice=parseIn(val('e6'));r.sid=val('e7')")],
   ['customer list has search by name, phone, national ID and vehicle', html.includes('id="custSearch"') && html.includes('data-search=') && html.includes('custTable tbody tr')],
   ['labor discount is allocated proportionally', /const netLabor=\(c,j\)=>/.test(html)],
   ['mechanic commission uses net labor and excludes own jobs', html.includes('const mechShare=m=>mechJobs(m).reduce((a,z)=>a+(z.j.own?0:netLabor(z.c,z.j)*(+m.percent||0)/100),0);')],
