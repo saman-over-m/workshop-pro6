@@ -1,7 +1,9 @@
 name: Build Windows installer
 on:
   workflow_dispatch:
+  pull_request:
   push:
+    branches: ['fix/**']
     tags: ['v*']
 permissions:
   contents: write
@@ -15,6 +17,8 @@ jobs:
           node-version: 20
       - name: Install
         run: npm install
+      - name: Validate app JavaScript and accounting rules
+        run: npm test
       - name: Build installer
         run: npm run dist
         env:
