@@ -24,6 +24,7 @@ const checks = [
   ['garage purchase form exposes account selection', html.includes('پرداخت از حساب (خرید نقدی)')],
   ['technician commission settlements are tracked', html.includes('S.mechanicPayments.push({id:uid(),mechanicId:id,amount,accountId:accountId||\'\',note,date:iso()})')],
   ['tip settlement requires a payout account when accounts exist', html.includes("A.tipSetDo=id=>") && html.includes("t.settlementAccountId=accountId||''")],
+  ['account transfers are recorded as paired movements', html.includes('A.transferSave=()=>') && html.includes('transferId,accountId:from,direction:\'out\'') && html.includes('transferId,accountId:to,direction:\'in\'')],
 ];
 for (const [label, ok] of checks) {
   assert.ok(ok, label);
@@ -108,7 +109,7 @@ assert.ok(accountStart >= 0 && accountEnd > accountStart, 'locate account balanc
 const accountSource = html.slice(accountStart, accountEnd);
 const accountContext = {
   S: {
-    ledger: [{ accountId: 'bank-1', direction: 'in', amount: 1000 }, { accountId: 'bank-1', direction: 'out', amount: 300 }],
+    ledger: [{ accountId: 'bank-1', direction: 'in', amount: 1000 }, { accountId: 'bank-1', direction: 'out', amount: 300 }, { accountId: 'bank-1', direction: 'out', amount: 400, transferId: 'transfer-1' }, { accountId: 'bank-2', direction: 'in', amount: 400, transferId: 'transfer-1' }],
     cards: [
       { payments: [{ accountId: 'bank-1', amount: 5000 }], parts: [{ settlements: [{ accountId: 'bank-1', amount: 2000 }] }] },
     ],
@@ -118,8 +119,9 @@ const accountContext = {
   },
 };
 vm.runInNewContext(accountSource + '\nthis.testAccountBalance = accountBalance;', accountContext);
-assert.equal(accountContext.testAccountBalance('bank-1'), 2000, 'account balance combines receipts, supplier payments, garage purchases, technician payouts, tip settlements, and manual ledger entries');
+assert.equal(accountContext.testAccountBalance('bank-1'), 1600, 'account balance combines receipts, supplier payments, garage purchases, technician payouts, tip settlements, transfers, and manual ledger entries');
+assert.equal(accountContext.testAccountBalance('bank-2'), 400, 'the receiving account gets the matching transfer inflow');
 assert.equal(accountContext.testAccountBalance('cash-1'), 0, 'unrelated accounts have zero balance');
-console.log('PASS account balance aggregates linked receipts, supplier payments, garage purchases, technician payouts, tip settlements, and manual movements');
+console.log('PASS account balance aggregates receipts, supplier payments, garage purchases, technician payouts, tip settlements, transfers, and manual movements');
 
 console.log('All WorkshopPro source and accounting checks passed.');
