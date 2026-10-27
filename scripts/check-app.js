@@ -20,6 +20,8 @@ const checks = [
   ['financial accounts are included in data normalization', /'accounts','ledger'/.test(html)],
   ['customer payments require an account when accounts exist', /if\(S\.accounts\.length&&!accountId\)return toast\('حساب دریافت را انتخاب کنید'\)/.test(html)],
   ['supplier settlements record their payment account', /z\.p\.settlements\.push\(\{id:uid\(\),amount:pp,accountId,date:iso\(\),supplierId:sid\}\)/.test(html)],
+  ['cash garage purchases record their payment account', /if\(mode==='amount'&&amount>0&&S\.accounts\.length&&!accountId\)return toast\('حساب پرداخت خرید را انتخاب کنید'\)/.test(html)],
+  ['garage purchase form exposes account selection', html.includes('پرداخت از حساب (خرید نقدی)')],
 ];
 for (const [label, ok] of checks) {
   assert.ok(ok, label);
