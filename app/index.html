@@ -119,17 +119,18 @@ function syncCustomer(c,previous={}){const match=u=>(c.customerId&&u.id===c.cust
 const cardLbl=c=>c.name+' — '+[c.vehicle,c.model].filter(Boolean).join(' ')+(c.plate?' ('+fn(c.plate)+')':'');
 const mechName=id=>ent('mechanics',id)?.name||'—';
 const mechJobs=m=>{const r=[];S.cards.forEach(c=>c.jobs.forEach(j=>{if(j.mechanicId===m.id||(!j.mechanicId&&j.mechanic&&j.mechanic===m.name))r.push({c,j})}));return r};
+const mechanicForJob=j=>ent('mechanics',j.mechanicId)||S.mechanics.find(m=>j.mechanic&&m.name===j.mechanic)||null;
 const netLabor=(c,j)=>{const jobs=c.jobs.reduce((a,x)=>a+(+x.labor||0),0),discount=Math.min(jobs,Math.max(0,(+c.discount||0)-Math.max(0,+c.autoDiscount||0)));return Math.max(0,(+j.labor||0)-(jobs?discount*(+j.labor||0)/jobs:0))};
 const mechShare=m=>mechJobs(m).reduce((a,z)=>a+(z.j.own?0:netLabor(z.c,z.j)*(+m.percent||0)/100),0);
 const mechPaid=m=>S.mechanicPayments.filter(p=>p.mechanicId===m.id).reduce((a,p)=>a+(+p.amount||0),0);
 const mechDue=m=>Math.max(0,mechShare(m)-mechPaid(m));
-const workProfit=c=>{const t=totals(c),parts=c.parts.reduce((a,p)=>a+partCost(p),0),expenses=(c.expenses||[]).reduce((a,x)=>a+(x.own?0:+x.amount||0),0),mechanic=c.jobs.reduce((a,j)=>{const m=ent('mechanics',j.mechanicId);return a+(m&&!j.own?netLabor(c,j)*(+m.percent||0)/100:0)},0),tips=S.tips.filter(x=>x.cardId===c.id&&x.inTotal).reduce((a,x)=>a+(+x.amount||0),0);return{profit:t.total-parts-expenses-mechanic-tips,parts,expenses,mechanic}};
+const workProfit=c=>{const t=totals(c),parts=c.parts.reduce((a,p)=>a+partCost(p),0),expenses=(c.expenses||[]).reduce((a,x)=>a+(x.own?0:+x.amount||0),0),mechanic=c.jobs.reduce((a,j)=>{const m=mechanicForJob(j);return a+(m&&!j.own?netLabor(c,j)*(+m.percent||0)/100:0)},0),tips=S.tips.filter(x=>x.cardId===c.id&&x.inTotal).reduce((a,x)=>a+(+x.amount||0),0);return{profit:t.total-parts-expenses-mechanic-tips,parts,expenses,mechanic}};
 const stOf=c=>!c.released?'in':(totals(c).balance>0?'debt':'done');
 /* ---- net received: what is really ours after costs ---- */
 const EXC=['پیک','قطعه (هزینه جدا)','حمل و بار','سایر'];
 function partCost(p){return p.own?0:p.purchasePrice>0?(+p.q||0)*p.purchasePrice:(S.set.partsFallback==='none'?0:(+p.q||0)*(+p.price||0))}
 function netOf(c){const t=totals(c),parts=c.parts.reduce((a,p)=>a+partCost(p),0),exp=(c.expenses||[]).reduce((a,x)=>x.own?a:a+(+x.amount||0),0),
- mech=S.set.netMech?c.jobs.reduce((a,j)=>{const m=ent('mechanics',j.mechanicId);return a+(m&&!j.own?netLabor(c,j)*(+m.percent||0)/100:0)},0):0,
+ mech=S.set.netMech?c.jobs.reduce((a,j)=>{const m=mechanicForJob(j);return a+(m&&!j.own?netLabor(c,j)*(+m.percent||0)/100:0)},0):0,
  unpriced=c.parts.filter(p=>!p.own&&!(p.purchasePrice>0)).length,
  // tips billed on the invoice are inside the total; tips recorded "outside the invoice" still pass through us when the customer over-paid by that amount
  tipsOut=S.tips.reduce((a,x)=>x.cardId===c.id&&!x.inTotal?a+(+x.amount||0):a,0),tipFromCredit=Math.min(t.credit,tipsOut),tip=t.tip+tipFromCredit,
