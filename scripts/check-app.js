@@ -25,6 +25,7 @@ const checks = [
   ['technician commission settlements are tracked', html.includes('S.mechanicPayments.push({id:uid(),mechanicId:id,amount,accountId:accountId||\'\',note,date:iso()})')],
   ['tip settlement requires a payout account when accounts exist', html.includes("A.tipSetDo=id=>") && html.includes("t.settlementAccountId=accountId||''")],
   ['account transfers are recorded as paired movements', html.includes('A.transferSave=()=>') && html.includes('transferId,accountId:from,direction:\'out\'') && html.includes('transferId,accountId:to,direction:\'in\'')],
+  ['reports show supplier and technician payables', html.includes('بدهی به تأمین‌کنندگان') && html.includes('مانده اجرت تعمیرکاران')],
 ];
 for (const [label, ok] of checks) {
   assert.ok(ok, label);
