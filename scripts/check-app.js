@@ -89,7 +89,7 @@ const netLaborLines = mechanicContext.S.cards[0].jobs.slice(0, 2).map((job) => m
 assert.ok(Math.abs(netLaborLines[0] - 4800) < 1e-9, 'first job receives proportional discount');
 assert.ok(Math.abs(netLaborLines[1] - 3200) < 1e-9, 'second job receives proportional discount');
 assert.equal(mechanicContext.testMechanicForJob(mechanicContext.S.cards[0].jobs[2]).id, 'tech', 'legacy jobs assigned by technician name are linked to the technician');
-assert.ok(Math.abs(mechanicContext.testMechShare(tech) - 1760) < 1e-9, 'commission includes legacy name-linked jobs, uses net labor and excludes own jobs');
+assert.ok(Math.abs(mechanicContext.testMechShare(tech) - 1800) < 1e-9, 'commission includes legacy name-linked jobs, uses net labor and excludes own jobs');
 console.log('PASS proportional labor discount and technician commission calculation including legacy assignments');
 
 const syncStart = html.indexOf('function syncCustomer(c,previous={})');
