@@ -9,11 +9,11 @@ const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
 let failed = false;
 for (let i = 0; i < scripts.length; i++) {
   try {
-    new vm.Script(scripts[i], { filename: \`app/index.html:inline-script-\${i + 1}\` });
-    console.log(\`PASS inline JavaScript syntax \${i + 1}\`);
+    new vm.Script(scripts[i], { filename: 'app/index.html:inline-script-' + (i + 1) });
+    console.log('PASS inline JavaScript syntax ' + (i + 1));
   } catch (error) {
     failed = true;
-    console.error(\`FAIL inline JavaScript syntax \${i + 1}: \${error.message}\`);
+    console.error('FAIL inline JavaScript syntax ' + (i + 1) + ': ' + error.message);
   }
 }
 
@@ -24,7 +24,7 @@ const checks = [
   ['technician report labels post-discount labor', html.includes('اجرت پس از تخفیف')],
 ];
 for (const [label, ok] of checks) {
-  console.log(\`\${ok ? 'PASS' : 'FAIL'} \${label}\`);
+  console.log((ok ? 'PASS ' : 'FAIL ') + label);
   if (!ok) failed = true;
 }
 if (failed) process.exit(1);
