@@ -22,6 +22,8 @@ const checks = [
   ['supplier settlements record their payment account', /z\.p\.settlements\.push\(\{id:uid\(\),amount:pp,accountId,date:iso\(\),supplierId:sid\}\)/.test(html)],
   ['cash garage purchases record their payment account', /if\(mode==='amount'&&amount>0&&S\.accounts\.length&&!accountId\)return toast\('حساب پرداخت خرید را انتخاب کنید'\)/.test(html)],
   ['garage purchase form exposes account selection', html.includes('پرداخت از حساب (خرید نقدی)')],
+  ['technician commission settlements are tracked', html.includes('S.mechanicPayments.push({id:uid(),mechanicId:id,amount,accountId:accountId||\'\',note,date:iso()})')],
+  ['tip settlement requires a payout account when accounts exist', html.includes("A.tipSetDo=id=>") && html.includes("t.settlementAccountId=accountId||''")],
 ];
 for (const [label, ok] of checks) {
   assert.ok(ok, label);
@@ -111,11 +113,13 @@ const accountContext = {
       { payments: [{ accountId: 'bank-1', amount: 5000 }], parts: [{ settlements: [{ accountId: 'bank-1', amount: 2000 }] }] },
     ],
     garage: [{ accountId: 'bank-1', mode: 'amount', amount: 1000 }, { accountId: 'bank-1', mode: 'credit', amount: 700 }],
+    mechanicPayments: [{ accountId: 'bank-1', amount: 500 }],
+    tips: [{ settled: true, settlementAccountId: 'bank-1', amount: 200 }],
   },
 };
 vm.runInNewContext(accountSource + '\nthis.testAccountBalance = accountBalance;', accountContext);
-assert.equal(accountContext.testAccountBalance('bank-1'), 2700, 'account balance combines receipts, supplier payments, cash garage purchases, and manual ledger entries');
+assert.equal(accountContext.testAccountBalance('bank-1'), 2000, 'account balance combines receipts, supplier payments, garage purchases, technician payouts, tip settlements, and manual ledger entries');
 assert.equal(accountContext.testAccountBalance('cash-1'), 0, 'unrelated accounts have zero balance');
-console.log('PASS account balance aggregates linked receipts, supplier payments, garage purchases, and manual movements');
+console.log('PASS account balance aggregates linked receipts, supplier payments, garage purchases, technician payouts, tip settlements, and manual movements');
 
 console.log('All WorkshopPro source and accounting checks passed.');
