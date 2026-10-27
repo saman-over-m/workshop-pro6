@@ -13,6 +13,7 @@ for (let i = 0; i < scripts.length; i++) {
 }
 
 const checks = [
+  ['customer list has search by name, phone, national ID and vehicle', html.includes('id="custSearch"') && html.includes('data-search=') && html.includes('custTable tbody tr')],
   ['labor discount is allocated proportionally', /const netLabor=\(c,j\)=>/.test(html)],
   ['mechanic commission uses net labor and excludes own jobs', html.includes('const mechShare=m=>mechJobs(m).reduce((a,z)=>a+(z.j.own?0:netLabor(z.c,z.j)*(+m.percent||0)/100),0);')],
   ['manual discount edit preserves settlement discount', /A\.setDisc=\(id,v\)=>cm\(id,c=>c\.discount=parseIn\(v\)\+Math\.max\(0,\+c\.autoDiscount\|\|0\)\)/.test(html)],
@@ -78,15 +79,17 @@ const mechanicEnd = html.indexOf('const stOf=', mechanicStart);
 assert.ok(mechanicStart >= 0 && mechanicEnd > mechanicStart, 'locate technician commission logic');
 const mechanicSource = html.slice(mechanicStart, mechanicEnd);
 const mechanicContext = {
-  S: { cards: [{ id: 'test-card', discount: 2000, autoDiscount: 0, jobs: card.jobs.map((j, i) => ({ ...j, mechanicId: 'tech', date: '2026-01-01', name: 'job-' + i })) }, { id: 'own-card', discount: 0, autoDiscount: 0, jobs: [{ id: 'own-job', name: 'own job', labor: 500, mechanicId: 'tech', own: true }] }] },
+  S: { mechanics: [{ id: 'tech', name: 'Test technician', percent: 20 }], cards: [{ id: 'test-card', discount: 2000, autoDiscount: 0, jobs: [...card.jobs.map((j, i) => ({ ...j, mechanicId: 'tech', date: '2026-01-01', name: 'job-' + i })), { name: 'legacy job', labor: 1000, mechanic: 'Test technician', date: '2026-01-01' }] }, { id: 'own-card', discount: 0, autoDiscount: 0, jobs: [{ id: 'own-job', name: 'own job', labor: 500, mechanicId: 'tech', own: true }] }] },
+  ent: (k, id) => mechanicContext.S[k]?.find((item) => item.id === id),
 };
-vm.runInNewContext(mechanicSource + '\nthis.testNetLabor = netLabor; this.testMechShare = mechShare;', mechanicContext);
+vm.runInNewContext(mechanicSource + '\nthis.testNetLabor = netLabor; this.testMechShare = mechShare; this.testMechanicForJob = mechanicForJob;', mechanicContext);
 const tech = { id: 'tech', name: 'Test technician', percent: 20 };
-const netLaborLines = mechanicContext.S.cards[0].jobs.map((job) => mechanicContext.testNetLabor(card, job));
+const netLaborLines = mechanicContext.S.cards[0].jobs.slice(0, 2).map((job) => mechanicContext.testNetLabor(card, job));
 assert.ok(Math.abs(netLaborLines[0] - 4800) < 1e-9, 'first job receives proportional discount');
 assert.ok(Math.abs(netLaborLines[1] - 3200) < 1e-9, 'second job receives proportional discount');
-assert.ok(Math.abs(mechanicContext.testMechShare(tech) - 1600) < 1e-9, 'commission is based on net labor');
-console.log('PASS proportional labor discount and technician commission calculation');
+assert.equal(mechanicContext.testMechanicForJob(mechanicContext.S.cards[0].jobs[2]).id, 'tech', 'legacy jobs assigned by technician name are linked to the technician');
+assert.ok(Math.abs(mechanicContext.testMechShare(tech) - 1760) < 1e-9, 'commission includes legacy name-linked jobs, uses net labor and excludes own jobs');
+console.log('PASS proportional labor discount and technician commission calculation including legacy assignments');
 
 const syncStart = html.indexOf('function syncCustomer(c,previous={})');
 const syncEnd = html.indexOf('const cardLbl=', syncStart);
