@@ -45,6 +45,23 @@ assert.equal(invoice.laborDiscount, 2000, 'discount applies to labor');
 assert.equal(invoice.total, 28000, 'invoice total discounts labor, not parts');
 console.log('PASS invoice total and labor-only discount calculation');
 
+const autoDiscountCard = {
+  id: 'auto-discount-card',
+  parts: [{ q: 1, price: 20000 }],
+  jobs: [{ labor: 6000 }, { labor: 4000 }],
+  payments: [],
+  discount: 3000,
+  autoDiscount: 1000,
+};
+const autoInvoice = totalsContext.testTotals(autoDiscountCard);
+assert.equal(autoInvoice.laborDiscount, 2000, 'automatic settlement discount is excluded from labor-only discount');
+assert.equal(autoInvoice.total, 27000, 'manual labor discount and settlement discount are each counted once');
+const cappedCard = { ...autoDiscountCard, discount: 12000, autoDiscount: 1000 };
+const cappedInvoice = totalsContext.testTotals(cappedCard);
+assert.equal(cappedInvoice.laborDiscount, 10000, 'manual discount cannot exceed gross labor');
+assert.equal(cappedInvoice.total, 19000, 'discount is capped at labor plus settlement discount');
+console.log('PASS automatic discount separation and labor discount cap');
+
 const mechanicStart = html.indexOf('const mechJobs=m=>');
 const mechanicEnd = html.indexOf('const stOf=', mechanicStart);
 assert.ok(mechanicStart >= 0 && mechanicEnd > mechanicStart, 'locate technician commission logic');
