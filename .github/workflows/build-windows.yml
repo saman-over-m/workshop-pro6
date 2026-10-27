@@ -17,7 +17,7 @@ jobs:
       - name: Install
         run: npm install
       - name: Validate app JavaScript and accounting rules
-        run: node scripts/check-app.js
+        run: npm test
       - name: Build installer
         run: npm run dist
         env:
