@@ -17,6 +17,9 @@ const checks = [
   ['mechanic commission uses net labor', /const mechShare=m=>mechJobs\(m\).reduce\(\(a,z\)=>a\+netLabor\(z\.c,z\.j\)\*\(\+m\.percent\|\|0\)\/100,0\)/.test(html)],
   ['manual discount edit preserves settlement discount', /A\.setDisc=\(id,v\)=>cm\(id,c=>c\.discount=parseIn\(v\)\+Math\.max\(0,\+c\.autoDiscount\|\|0\)\)/.test(html)],
   ['technician report labels post-discount labor', html.includes('اجرت پس از تخفیف')],
+  ['financial accounts are included in data normalization', /'accounts','ledger'/.test(html)],
+  ['customer payments require an account when accounts exist', /if\(S\.accounts\.length&&!accountId\)return toast\('حساب دریافت را انتخاب کنید'\)/.test(html)],
+  ['supplier settlements record their payment account', /z\.p\.settlements\.push\(\{id:uid\(\),amount:pp,accountId,date:iso\(\),supplierId:sid\}\)/.test(html)],
 ];
 for (const [label, ok] of checks) {
   assert.ok(ok, label);
@@ -94,5 +97,22 @@ assert.equal(linked.name, 'New Name', 'customer name is synchronized');
 assert.equal(linked.phone, '777', 'customer phone is synchronized');
 assert.equal(editedCard.customerId, 'customer-1', 'cardex stores the stable customer link');
 console.log('PASS cardex edits update the linked customer without duplication');
+
+const accountStart = html.indexOf('const accountBalance=id=>');
+const accountEnd = html.indexOf('const accountName=', accountStart);
+assert.ok(accountStart >= 0 && accountEnd > accountStart, 'locate account balance logic');
+const accountSource = html.slice(accountStart, accountEnd);
+const accountContext = {
+  S: {
+    ledger: [{ accountId: 'bank-1', direction: 'in', amount: 1000 }, { accountId: 'bank-1', direction: 'out', amount: 300 }],
+    cards: [
+      { payments: [{ accountId: 'bank-1', amount: 5000 }], parts: [{ settlements: [{ accountId: 'bank-1', amount: 2000 }] }] },
+    ],
+  },
+};
+vm.runInNewContext(accountSource + '\\nthis.testAccountBalance = accountBalance;', accountContext);
+assert.equal(accountContext.testAccountBalance('bank-1'), 3700, 'account balance combines receipts, supplier payments, and manual ledger entries');
+assert.equal(accountContext.testAccountBalance('cash-1'), 0, 'unrelated accounts have zero balance');
+console.log('PASS account balance aggregates linked receipts, supplier payments, and manual movements');
 
 console.log('All WorkshopPro source and accounting checks passed.');
